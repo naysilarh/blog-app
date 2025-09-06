@@ -43,7 +43,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $post = Post::findOrFail($id);
+       
         return view('posts.show', compact('post'));
     }
 
@@ -52,7 +52,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        $post = Post::findOrFail($id);
+        
         return view('posts.edit', compact('post'));
     }
 
@@ -61,7 +61,7 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        $post = Post::findOrFail($id);
+      
         $post->update($request->all());
         return redirect()->route('posts.index');
     }
@@ -71,8 +71,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        $post = Post::findOrFail($id);
-        $post->delete();
-        return redirect()->route('posts.index');
+         $post->delete();
+        return redirect()->route('posts.index')->with('success', 'Post dihapus.');
     }
 }
