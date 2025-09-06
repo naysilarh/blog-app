@@ -12,8 +12,9 @@ class PostController extends Controller
      */
     public function index()
     {
-          $posts = Post::with('user')->get();
+    $posts = Post::all();
     return view('posts.index', compact('posts'));
+
     }
 
     /**
@@ -30,10 +31,10 @@ class PostController extends Controller
     public function store(Request $request)
     {
         Post::create([
-        'title'   => $request->title,
-        'content' => $request->content,
-        'date'    => now(),
-        'user_id' => auth()->id(), // simpan id user
+        'title' => $request->title,
+    'content' => $request->content,
+    'date' => now(),
+    'user_id' => 1 // simpan id user
     ]);
     }
 
