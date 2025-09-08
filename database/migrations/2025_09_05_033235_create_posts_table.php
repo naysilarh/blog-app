@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('title');
             $table->string('content');
             $table->date('date');
-$table->unsignedBigInteger('user_id')->nullable()->constrained('users')->onDelete('cascade');
-            $table->timestamps();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('caty_id')->default(1); 
+            $table->timestamps(); 
         });
     }
 

@@ -1,29 +1,29 @@
-{{-- resources/views/posts/index.blade.php --}}
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="fw-bold">Daftar Post</h1>
-        <a href="{{ url('/posts/create') }}" class="btn btn-primary">+ Tambah Post</a>
-    </div>
+<div class="container">
+    <h1 class="mb-4">Daftar Artikel</h1>
+    <a href="{{ route('posts.create') }}" class="btn btn-primary mb-4">+ Tambah Artikel</a>
 
-    @if($posts->count())
+    @if($posts->count() > 0)
         <div class="row">
-            @foreach($posts as $post)
-                <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="card shadow-sm h-100">
+            @foreach ($posts as $post)
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
                         <div class="card-body">
-                            <h5 class="card-title">{{ $post->title }}</h5>
-                            <p class="card-text text-muted">{{ Str::limit($post->content, 100) }}</p>
-                            <small class="text-secondary">{{ $post->date }}</small>
+                            <h4 class="card-title">{{ $post->title }}</h4>
+                            <p class="text-muted">{{ \Carbon\Carbon::parse($post->date)->format('d M Y') }}</p>
+                            <p class="card-text">
+                                {{ Str::limit($post->content, 150, '...') }}
+                            </p>
+                            <a href="#" class="btn btn-sm btn-outline-primary">Baca Selengkapnya</a>
                         </div>
                         <div class="card-footer d-flex justify-content-between">
-                            <a href="{{ url('/posts/'.$post->id.'/edit') }}" class="btn btn-sm btn-warning">Edit</a>
-                            <form action="{{ url('/posts/'.$post->id) }}" method="POST" onsubmit="return confirm('Yakin hapus?')">
+                            <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                            <form action="{{ route('posts.destroy', $post->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-sm btn-danger">Hapus</button>
+                                <button class="btn btn-danger btn-sm">Hapus</button>
                             </form>
                         </div>
                     </div>
@@ -31,7 +31,7 @@
             @endforeach
         </div>
     @else
-        <div class="alert alert-info">Belum ada post tersedia.</div>
+        <p class="text-muted">Belum ada artikel.</p>
     @endif
 </div>
 @endsection
