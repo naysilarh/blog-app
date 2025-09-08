@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('content');
             $table->date('date');
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->unsignedBigInteger('caty_id')->default(1); 
+            $table->unsignedBigInteger('caty_id')->nullable(); 
             $table->timestamps(); 
         });
     }

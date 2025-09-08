@@ -31,10 +31,11 @@ class PostController extends Controller
     public function store(Request $request)
     {
         Post::create([
-        'title' => $request->title,
-    'content' => $request->content,
-    'date' => now(),
-    'user_id' => 1 // simpan id user
+        'title'   => $request->title,
+        'content' => $request->content,
+        'date'    => now(),
+        'user_id' => 1,   // simpan id user (sementara hardcode)
+        'caty_id' => 1    // simpan id kategori (sementara hardcode)
     ]);
     }
 
