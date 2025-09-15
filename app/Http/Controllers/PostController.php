@@ -3,79 +3,91 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan semua post
      */
     public function index()
     {
-    $posts = Post::all();
-    return view('posts.index', compact('posts'));
-
+        // ambil semua post dengan relasi user
+        $posts = Post::with('user')->get();
+        return view('posts.index', compact('posts'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Form create
      */
     public function create()
     {
-        return view('posts.create');
+        $users = User::all(); // buat dropdown penulis
+        return view('posts.create', compact('users'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan post baru
      */
     public function store(Request $request)
     {
-         Post::create([
-        'title'   => $request->title,
-        'content' => $request->content,
-        'date'    => now(),
-        'user_id' => 1,
-        'caty_id' => 1,
-    ]);
+        $request->validate([
+            'title'   => 'required|string|max:255',
+            'content' => 'required|string',
+            'user_id' => 'required|exists:users,id',
+        ]);
 
-    return redirect()->route('posts.index')
-                     ->with('success', 'Artikel berhasil ditambahkan!');
+        Post::create([
+            'title'   => $request->title,
+            'content' => $request->content,
+            'date'    => now(),
+            'user_id' => $request->user_id,
+            'caty_id' => null, // nanti diisi setelah kategori jadi
+        ]);
+
+        return redirect()->route('posts.index')->with('success', 'Post berhasil dibuat');
     }
 
     /**
-     * Display the specified resource.
+     * Detail post
      */
     public function show(Post $post)
     {
-       
         return view('posts.show', compact('post'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Form edit post
      */
     public function edit(Post $post)
     {
-        
-        return view('posts.edit', compact('post'));
+        $users = User::all();
+        return view('posts.edit', compact('post', 'users'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update post
      */
     public function update(Request $request, Post $post)
     {
-      
+        $request->validate([
+            'title'   => 'required|string|max:255',
+            'content' => 'required|string',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
         $post->update($request->all());
-        return redirect()->route('posts.index');
+
+        return redirect()->route('posts.index')->with('success', 'Post berhasil diperbarui');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus post
      */
     public function destroy(Post $post)
     {
-         $post->delete();
-        return redirect()->route('posts.index')->with('success', 'Post dihapus.');
+        $post->delete();
+        return redirect()->route('posts.index')->with('success', 'Post berhasil dihapus');
     }
 }
