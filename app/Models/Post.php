@@ -19,7 +19,7 @@ class Post extends Model
         'content',
         'date',
         'user_id',
-        'caty_id',
+        'category_id',
     ];
 
     /**
