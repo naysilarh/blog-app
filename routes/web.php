@@ -10,15 +10,9 @@ use App\Http\Controllers\AuthController;
 Route::get('/', function () {
     return view('welcome');
 });
-
 Route::resource('posts', PostController::class);
-
 Route::resource('users', UserController::class);
-
 Route::resource('categories', CategoryController::class);
-
-
-
 // default redirect ke login
 Route::redirect('/', '/login');
 
