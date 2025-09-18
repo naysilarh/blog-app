@@ -48,6 +48,11 @@ class CategoryController extends Controller
     return redirect()->route('categories.index')->with('success', 'Category berhasil diperbarui!');
 }
 
+public function show(Category $category)
+    {
+        return view('categories.show', compact('category'));
+    }
+
     public function destroy(Category $category)
     {
         $category->delete();
