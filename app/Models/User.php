@@ -3,17 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class User extends Model
+class User extends Authenticatable
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -21,10 +17,6 @@ class User extends Model
         'role',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
     ];
@@ -34,14 +26,9 @@ class User extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-
-    /**
-     * Get all of the posts for the user.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class, 'user_id', 'id');
     }
+
 }

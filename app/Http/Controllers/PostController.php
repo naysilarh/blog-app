@@ -3,91 +3,95 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use App\Models\User;
+use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
-    /**
-     * Tampilkan semua post
-     */
-    public function index()
+   public function index()
     {
-        // ambil semua post dengan relasi user
-        $posts = Post::with('user')->get();
+       if (Auth::check()) {
+            if (Auth::user()->role === 'admin') {
+                $posts = Post::with('user','category')->get();
+            } else {
+                $posts = Post::with('user','category')
+                    ->where('user_id', Auth::id())
+                    ->get();
+            }
+        } else {
+            $posts = Post::with('user','category')->get();
+        }
+
         return view('posts.index', compact('posts'));
     }
 
-    /**
-     * Form create
-     */
     public function create()
     {
-        $users = User::all(); // buat dropdown penulis
-        return view('posts.create', compact('users'));
+        $categories = Category::all();
+        return view('posts.create', compact('categories'));
     }
 
-    /**
-     * Simpan post baru
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title'   => 'required|string|max:255',
-            'content' => 'required|string',
-            'user_id' => 'required|exists:users,id',
-        ]);
+   public function store(Request $request)
+{
+    // validasi input
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string',
+        'category_id' => 'required|exists:categories,id',
+    ]);
 
-        Post::create([
-            'title'   => $request->title,
-            'content' => $request->content,
-            'date'    => now(),
-            'user_id' => $request->user_id,
-            'caty_id' => null, // nanti diisi setelah kategori jadi
-        ]);
+    // simpan ke DB
+    $post = new \App\Models\Post();
+    $post->title = $validated['title'];
+    $post->content = $validated['content'];
+    $post->category_id = $validated['category_id'];
+    $post->user_id = auth()->id(); // user yg login
+    $post->save();
 
-        return redirect()->route('posts.index')->with('success', 'Post berhasil dibuat');
-    }
+    // redirect balik ke posts.index
+    return redirect()->route('posts.index')->with('success', 'Post berhasil dibuat!');
+}
 
-    /**
-     * Detail post
-     */
-    public function show(Post $post)
-    {
-        return view('posts.show', compact('post'));
-    }
 
-    /**
-     * Form edit post
-     */
     public function edit(Post $post)
     {
-        $users = User::all();
-        return view('posts.edit', compact('post', 'users'));
+        $user = Auth::user();
+        if ($user->isAuthor() && $post->user_id !== $user->id) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $categories = Category::all();
+        return view('posts.edit', compact('post', 'categories'));
     }
 
-    /**
-     * Update post
-     */
     public function update(Request $request, Post $post)
     {
+        $user = Auth::user();
+        if ($user->isAuthor() && $post->user_id !== $user->id) {
+            abort(403, 'Unauthorized.');
+        }
+
         $request->validate([
-            'title'   => 'required|string|max:255',
-            'content' => 'required|string',
-            'user_id' => 'required|exists:users,id',
+            'title'       => 'required|string|max:255',
+            'content'     => 'required',
+            'date'        => 'required|date',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         $post->update($request->all());
 
-        return redirect()->route('posts.index')->with('success', 'Post berhasil diperbarui');
+        return redirect()->route('posts.index')->with('success', 'Post updated.');
     }
 
-    /**
-     * Hapus post
-     */
     public function destroy(Post $post)
     {
+        $user = Auth::user();
+        if ($user->isAuthor() && $post->user_id !== $user->id) {
+            abort(403, 'Unauthorized.');
+        }
+
         $post->delete();
-        return redirect()->route('posts.index')->with('success', 'Post berhasil dihapus');
+        return redirect()->route('posts.index')->with('success', 'Post deleted.');
     }
 }

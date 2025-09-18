@@ -12,10 +12,11 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('content');
+            $table->date('date');
             $table->foreignId('user_id')
                   ->constrained('users')
                   ->cascadeOnDelete();
-            $table->foreignId('category_id')
+            $table->fzoreignId('category_id')
                   ->nullable()
                   ->constrained('categories')
                   ->nullOnDelete();

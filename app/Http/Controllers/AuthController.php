@@ -19,16 +19,13 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-            $user = Auth::user();
+            $request->session()->regenerate();
 
-            return match ($user->role) {
-                'admin'  => redirect()->route('admin.dashboard'),
-                'author' => redirect()->route('author.dashboard'),
-                default  => redirect()->route('guest.home'),
-            };
+            // Semua role langsung ke posts
+            return redirect()->route('posts.index');
         }
 
-        return back()->withErrors(['email' => 'Login gagal, cek email/password']);
+        return back()->withErrors(['email' => 'Email atau password salah']);
     }
 
     public function showRegisterForm()
@@ -39,24 +36,32 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name'     => 'required',
-            'email'    => 'required|email|unique:users',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
         ]);
 
-        User::create([
+        // buat user baru
+        $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => 'author', // default user baru = author
+            'role'     => 'author', // default role
         ]);
 
-        return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
+        // langsung login setelah register
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('posts.index');
     }
 
     public function logout(Request $request)
     {
         Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect()->route('login');
     }
 }
